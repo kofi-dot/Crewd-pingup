@@ -31,6 +31,9 @@ app.get('/api/health/db', async (req, res) => {
     try {
         console.log('🔍 Testing database connection...')
         console.log('MONGODB_URL:', process.env.MONGODB_URL ? 'SET' : 'NOT SET')
+        console.log('🔍 All environment variables starting with MONGO:', Object.keys(process.env).filter(key => key.startsWith('MONGO')))
+        console.log('🔍 Environment:', process.env.NODE_ENV)
+        console.log('🔍 Vercel environment:', process.env.VERCEL)
         
         if (!process.env.MONGODB_URL) {
             console.error('❌ MONGODB_URL environment variable is not set')
