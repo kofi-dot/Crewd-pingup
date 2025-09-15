@@ -25,6 +25,65 @@ app.use(cors());
 app.use(clerkMiddleware());
 
 app.get('/', (req, res)=> res.send('Server is running'))
+
+// Database connection test endpoint
+app.get('/api/health/db', async (req, res) => {
+    try {
+        console.log('🔍 Testing database connection...')
+        console.log('MONGODB_URL:', process.env.MONGODB_URL ? 'SET' : 'NOT SET')
+        
+        if (!process.env.MONGODB_URL) {
+            console.error('❌ MONGODB_URL environment variable is not set')
+            return res.status(500).json({
+                success: false,
+                message: 'MONGODB_URL environment variable is not set',
+                database: 'disconnected',
+                env: 'missing'
+            })
+        }
+
+        // Test database connection
+        const mongoose = await import('mongoose')
+        const connectionState = mongoose.default.connection.readyState
+        
+        console.log('📊 Database connection state:', connectionState)
+        console.log('📊 Connection states: 0=disconnected, 1=connected, 2=connecting, 3=disconnecting')
+        
+        if (connectionState === 1) {
+            console.log('✅ Database is connected')
+            
+            // Test a simple query
+            const User = (await import('./models/User.js')).default
+            const userCount = await User.countDocuments()
+            console.log('📊 Total users in database:', userCount)
+            
+            return res.json({
+                success: true,
+                message: 'Database connection successful',
+                database: 'connected',
+                userCount: userCount,
+                connectionState: connectionState
+            })
+        } else {
+            console.log('❌ Database is not connected. State:', connectionState)
+            return res.status(500).json({
+                success: false,
+                message: 'Database is not connected',
+                database: 'disconnected',
+                connectionState: connectionState
+            })
+        }
+    } catch (error) {
+        console.error('❌ Database connection test failed:', error.message)
+        console.error('❌ Full error:', error)
+        return res.status(500).json({
+            success: false,
+            message: 'Database connection test failed',
+            error: error.message,
+            database: 'error'
+        })
+    }
+})
 app.use('/api/inngest', serve({ client: inngest, functions }))
 app.use('/api/user', userRouter)
 app.use('/api/post', postRouter)
