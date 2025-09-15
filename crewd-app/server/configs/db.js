@@ -19,7 +19,23 @@ const connectDB = async () => {
             console.log('⚠️ Database disconnected')
         })
         
-        await mongoose.connect(`${process.env.MONGODB_URL}/pingup`)
+        // Handle database name properly
+        const mongoUrl = process.env.MONGODB_URL
+        const dbName = 'pingup'
+        
+        // If URL already has a database name, replace it; otherwise append it
+        let connectionString
+        if (mongoUrl.includes('/') && mongoUrl.split('/').length > 3) {
+            // URL already has a database name, replace it
+            const baseUrl = mongoUrl.substring(0, mongoUrl.lastIndexOf('/'))
+            connectionString = `${baseUrl}/${dbName}`
+        } else {
+            // URL doesn't have a database name, append it
+            connectionString = `${mongoUrl}/${dbName}`
+        }
+        
+        console.log('🔗 Connection string:', connectionString.replace(/\/\/.*@/, '//***:***@')) // Hide credentials in logs
+        await mongoose.connect(connectionString)
         console.log('🔗 Database connection attempt completed')
     } catch (error) {
         console.error('❌ Database connection failed:', error.message)

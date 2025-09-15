@@ -4,7 +4,7 @@ import Connection from "../models/Connection.js";
 import sendEmail from "../configs/nodeMailer.js";
 import Story from "../models/Story.js";
 import Message from "../models/Message.js";
-//forcing redeploy - debugging env vars
+//forcing redeploy - fixing db namespace
 // Create a client to send and receive events
 export const inngest = new Inngest({ id: "pingup-app" });
 
