@@ -12,6 +12,12 @@ import messageRouter from './routes/messageRoutes.js';
 
 const app = express();
 
+app.use(cors({
+  origin: "https://crewd-client.vercel.app",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
+
 await connectDB();
 
 app.use(express.json());
@@ -26,5 +32,6 @@ app.use('/api/story', storyRouter)
 app.use('/api/message', messageRouter)
 
 const PORT = process.env.PORT || 4000;
+
 
 app.listen(PORT, ()=> console.log(`Server is running on port ${PORT}`))
