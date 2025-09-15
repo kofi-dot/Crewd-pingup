@@ -5,6 +5,11 @@
   font-family: "Outfit", sans-serif;
 }
 
+/* Force redeploy - small color change */
+body {
+  background-color: #ffffff; /* Changed from default */
+}
+
 .no-scrollbar::-webkit-scrollbar{
   display: none;
 }
