@@ -26,6 +26,12 @@ app.use(clerkMiddleware());
 
 app.get('/', (req, res)=> res.send('Server is running'))
 
+// Test Inngest endpoint
+app.get('/api/inngest/test', (req, res) => {
+    console.log('🧪 Inngest endpoint test - endpoint is accessible')
+    res.json({success: true, message: 'Inngest endpoint is working'})
+})
+
 // Database connection test endpoint
 app.get('/api/health/db', async (req, res) => {
     try {
@@ -87,6 +93,16 @@ app.get('/api/health/db', async (req, res) => {
         })
     }
 })
+// Add logging for all requests to /api/inngest
+app.use('/api/inngest', (req, res, next) => {
+    console.log('🔗 Inngest request received:', req.method, req.url)
+    console.log('🔗 Headers:', req.headers)
+    if (req.body) {
+        console.log('🔗 Body:', JSON.stringify(req.body, null, 2))
+    }
+    next()
+})
+
 app.use('/api/inngest', serve({ client: inngest, functions }))
 app.use('/api/user', userRouter)
 app.use('/api/post', postRouter)
