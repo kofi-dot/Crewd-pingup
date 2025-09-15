@@ -11,13 +11,18 @@ import { clerkClient } from "@clerk/express";
 export const getUserData = async (req, res) => {
     try {
         const { userId } = req.auth()
+        console.log('🔍 Getting user data for:', userId)
+        
         const user = await User.findById(userId)
         if(!user){
-            return res.json({success: false, message: "User not found"})
+            console.log('❌ User not found in database:', userId)
+            return res.json({success: false, message: "User not found in database. Please try logging in again."})
         }
+        
+        console.log('✅ User found:', user.username)
         res.json({success: true, user})
     } catch (error) {
-        console.log(error);
+        console.log('❌ Error in getUserData:', error);
         res.json({success: false, message: error.message})
     }
 }
@@ -223,18 +228,26 @@ export const sendConnectionRequest = async (req, res) => {
 export const getUserConnections = async (req, res) => {
     try {
         const {userId} = req.auth()
+        console.log('🔍 Getting connections for user:', userId)
+        
         const user = await User.findById(userId).populate('connections followers following')
+        
+        if (!user) {
+            console.log('❌ User not found in database:', userId)
+            return res.json({success: false, message: "User not found in database. Please try logging in again."})
+        }
 
-        const connections = user.connections
-        const followers = user.followers
-        const following = user.following
+        console.log('✅ User found:', user.username)
+        const connections = user.connections || []
+        const followers = user.followers || []
+        const following = user.following || []
 
         const pendingConnections = (await Connection.find({to_user_id: userId, status: 'pending'}).populate('from_user_id')).map(connection=>connection.from_user_id)
 
         res.json({success: true, connections, followers, following, pendingConnections})
 
     } catch (error) {
-        console.log(error);
+        console.log('❌ Error in getUserConnections:', error);
         res.json({success: false, message: error.message})
     }
 }
